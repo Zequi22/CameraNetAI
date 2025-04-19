@@ -97,3 +97,26 @@ h1 {
     background: rgba(255,255,255,0.7);
     border-radius: 50%;
 }
+
+/* Media queries solo para el resultado */
+@media screen and (max-width: 480px) {
+    #result {
+        font-size: 1rem;
+        padding: 15px;
+        max-width: 100%;
+        margin: 0;
+        border-radius: 0;
+        box-shadow: none;
+        background-color: var(--5color);
+        border-top: 2px solid var(--text-color);
+    }
+}
+
+@media screen and (min-width: 481px) and (max-width: 768px) {
+    #result {
+        font-size: 1.1rem;
+        padding: 12px 20px;
+        max-width: 95%;
+        box-shadow: 5px 5px 0px black;
+    }
+}
