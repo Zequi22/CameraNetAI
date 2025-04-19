@@ -18,11 +18,15 @@
     <!-- Enlace al archivo CSS externo -->
 </head>
 <body>
-    <!-- Inicio del cuerpo del documento -->
-    <h1>¿Qué ves? 👀</h1>
-    <!-- Título principal con un emoji divertido -->
-    <video id="video" width="640" height="480" autoplay playsinline></video>
-    <!-- Contenedor de video -->
+    <div class="container">
+      
+        <div class="camara">
+            <div class="cristal"></div>
+        </div>
+        <h1>¿Qué es esto? 👀</h1>
+        <video id="video" width="640" height="480" autoplay playsinline></video>
+  <!-- Contenedor de video -->  
+    </div>
     <div id="result">Cargando... ¡Prepárate para la magia! ✨</div>
     <!-- Contenedor para mostrar los resultados con un mensaje inicial -->
 
@@ -45,7 +49,7 @@
         mobilenet.load().then(mobilenetModel => {
             model = mobilenetModel;
             console.log('Modelo MobileNet cargado');
-            resultDiv.innerText = '¡Listo! A ver qué ves... 🤩';
+            resultDiv.innerText = '¡Listo! Para adivinar lo que ves';
         });
 
         // Clasificar el video cada 1 segundo
