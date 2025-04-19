@@ -14,7 +14,7 @@
     <!-- Inclusión de la biblioteca TensorFlow.js desde un CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet"></script>
     <!-- Inclusión del modelo MobileNet de TensorFlow.js desde un CDN -->
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="./style.css">
     <!-- Enlace al archivo CSS externo -->
 </head>
 <body>
@@ -42,7 +42,7 @@
 
         // Cargar el modelo MobileNet a través de TensorFlow.js
         let model;
-        tf.loadLayersModel('https://tfhub.dev/google/tfjs-model/mobilenet_v2_1.0_224/classification/3/default/1').then(mobilenetModel => {
+        mobilenet.load().then(mobilenetModel => {
             model = mobilenetModel;
             console.log('Modelo MobileNet cargado');
             resultDiv.innerText = '¡Listo! A ver qué ves... 🤩';
@@ -53,7 +53,8 @@
             setInterval(async () => {
                 if (model) {
                     const predictions = await model.classify(video);
-                    resultDiv.innerText = predictions.map(p => `${p.className}: ${p.probability.toFixed(2)}`).join('\n') || 'No estoy seguro... 🤔';
+                    // Mostrar las predicciones en el contenedor de resultados
+                    resultDiv.innerText = predictions.map(p => `${p.className}: ${(p.probability * 100).toFixed(2)}%`).join('\n') || 'No estoy seguro... 🤔';
                 }
             }, 1000);
         });
