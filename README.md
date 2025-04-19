@@ -24,7 +24,7 @@ Identificador de objetos en tiempo real usando la cámara de tu dispositivo y ma
 
 ## 📱 Pruébalo
 
-[Demo en vivo](https://tuusuario.github.io/CameraNetAI)
+[Demo en vivo](https://zequi22.github.io/CameraNetAI/)
 
 ## 📝 Nota
 
