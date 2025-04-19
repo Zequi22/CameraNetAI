@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<!-- Declaración del tipo de documento HTML5 -->
+<html lang="es">
+<!-- Inicio del documento HTML con el idioma configurado a español -->
+<head>
+    <!-- Contenido del encabezado del documento -->
+    <meta charset="UTF-8">
+    <!-- Configuración de la codificación de caracteres a UTF-8 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Configuración para que el diseño sea responsivo en dispositivos móviles -->
+    <title>Documento</title>
+    <!-- Título del documento que aparece en la pestaña del navegador -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <!-- Inclusión de la biblioteca TensorFlow.js desde un CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet"></script>
+    <!-- Inclusión del modelo MobileNet de TensorFlow.js desde un CDN -->
+</head>
+<body>
+    <!-- Inicio del cuerpo del documento -->
+    <h1>Clasificación de Video con MobileNet</h1>
+    <video id="video" width="640" height="480" autoplay playsinline></video>
+    <!-- Contenedor de video -->
+    <div id="result"></div>
+    <!-- Contenedor para mostrar los resultados -->
+
+    <script>
+        // Acceso a la cámara trasera del móvil del usuario
+        const video = document.getElementById('video');
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: { exact: "environment" } } })
+            .then(stream => {
+                video.srcObject = stream;
+            })
+            .catch(error => {
+                console.error('Error al acceder a la cámara trasera:', error);
+            });
+
+        // Cargar el modelo MobileNet a través de TensorFlow.js
+        let model;
+        tf.loadLayersModel('https://tfhub.dev/google/tfjs-model/mobilenet_v2_1.0_224/classification/3/default/1').then(mobilenetModel => {
+            model = mobilenetModel;
+            console.log('Modelo MobileNet cargado');
+        });
+
+        // Clasificar el video cada 1 segundo
+        video.addEventListener('loadeddata', () => {
+            setInterval(async () => {
+                const predictions = await model.classify(video);
+                document.getElementById('result').innerText = predictions.map(p => `${p.className}: ${p.probability.toFixed(2)}`).join('\n');
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
+<!-- Fin del documento HTML -->
