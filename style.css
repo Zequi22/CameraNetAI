@@ -29,6 +29,7 @@ h1 {
     padding: 15px;
     border: solid 2px var(--text-color);
     background: var(--4color);
+    border-radius: 20px;
 }
 .container{
     position: relative;
