@@ -11,57 +11,103 @@
     <title>¿Qué es esto?</title>
     <!-- Título del documento que aparece en la pestaña del navegador -->
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
-    <!-- Inclusión de la biblioteca TensorFlow.js desde un CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet"></script>
-    <!-- Inclusión del modelo MobileNet de TensorFlow.js desde un CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
     <link rel="stylesheet" href="./style.css">
-    <!-- Enlace al archivo CSS externo -->
 </head>
 <body>
     <div class="container">
-      
         <div class="camara">
             <div class="cristal"></div>
         </div>
         <h1>¿Qué es esto? 👀</h1>
-        <video id="video" width="640" height="480" autoplay playsinline></video>
-  <!-- Contenedor de video -->  
+        <div class="video-container">
+            <video id="video" autoplay playsinline muted></video>
+            <canvas id="canvas"></canvas>
+        </div>
     </div>
     <div id="result">Cargando... ¡Prepárate para la magia! ✨</div>
-    <!-- Contenedor para mostrar los resultados con un mensaje inicial -->
 
     <script>
-        // Acceso a la cámara trasera del móvil del usuario
         const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
         const resultDiv = document.getElementById('result');
+        const ctx = canvas.getContext('2d');
 
-        navigator.mediaDevices.getUserMedia({ video: { facingMode: { exact: "environment" } } })
-            .then(stream => {
-                video.srcObject = stream;
-            })
-            .catch(error => {
-                console.error('Error al acceder a la cámara trasera:', error);
-                resultDiv.innerText = '¡Ups! No puedo acceder a la cámara. 😞';
-            });
-
-        // Cargar el modelo MobileNet a través de TensorFlow.js
         let model;
-        mobilenet.load().then(mobilenetModel => {
-            model = mobilenetModel;
-            console.log('Modelo MobileNet cargado');
-            resultDiv.innerText = '¡Listo! Para adivinar lo que ves';
+
+        // Acceder a la cámara
+        navigator.mediaDevices.getUserMedia({ 
+            video: { 
+                facingMode: { ideal: "environment" },
+                width: { ideal: 640 },
+                height: { ideal: 480 }
+            } 
+        })
+        .then(stream => {
+            video.srcObject = stream;
+            video.onloadedmetadata = () => {
+                video.play();
+                setupCanvas();
+            };
+        })
+        .catch(error => {
+            console.error('Error al acceder a la cámara:', error);
+            resultDiv.innerText = '¡Ups! No puedo acceder a la cámara. 😞';
         });
 
-        // Clasificar el video cada 1 segundo
-        video.addEventListener('loadeddata', () => {
-            setInterval(async () => {
-                if (model) {
-                    const predictions = await model.classify(video);
-                    // Mostrar las predicciones en el contenedor de resultados
-                    resultDiv.innerText = predictions.map(p => `${p.className}: ${(p.probability * 100).toFixed(2)}%`).join('\n') || 'No estoy seguro... 🤔';
-                }
-            }, 1000);
+        function setupCanvas() {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+        }
+
+        // Cargar COCO-SSD
+        cocoSsd.load().then(loadedModel => {
+            model = loadedModel;
+            console.log('Modelo COCO-SSD cargado');
+            resultDiv.innerText = '¡Listo! Explorando el mundo contigo... 🚀';
+            detectFrame();
         });
+
+        async function detectFrame() {
+            if (model && video.readyState === 4) {
+                const predictions = await model.detect(video);
+                drawPredictions(predictions);
+                
+                if (predictions.length > 0) {
+                    resultDiv.innerText = predictions
+                        .map(p => `${p.class}: ${(p.score * 100).toFixed(0)}%`)
+                        .join(' | ');
+                } else {
+                    resultDiv.innerText = 'Escaneando... 🔍';
+                }
+            }
+            requestAnimationFrame(detectFrame);
+        }
+
+        function drawPredictions(predictions) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            predictions.forEach(prediction => {
+                const [x, y, width, height] = prediction.bbox;
+                
+                // Dibujar el rectángulo
+                ctx.strokeStyle = '#b3ff7d';
+                ctx.lineWidth = 4;
+                ctx.strokeRect(x, y, width, height);
+
+                // Dibujar el fondo del texto
+                ctx.fillStyle = '#b3ff7d';
+                const textWidth = ctx.measureText(prediction.class).width;
+                ctx.fillRect(x, y - 25, textWidth + 10, 25);
+
+                // Dibujar el texto
+                ctx.fillStyle = '#000000';
+                ctx.font = 'bold 16px Inter, sans-serif';
+                ctx.fillText(prediction.class, x + 5, y - 7);
+            });
+        }
+
+        window.addEventListener('resize', setupCanvas);
     </script>
 </body>
 </html>
