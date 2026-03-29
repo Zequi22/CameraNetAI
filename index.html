@@ -15,100 +15,20 @@
     <link rel="stylesheet" href="./style.css">
 </head>
 <body>
-    <div class="container">
-        <div class="camara">
-            <div class="cristal"></div>
-        </div>
-        <h1>¿Qué es esto? 👀</h1>
-        <div class="video-container">
-            <video id="video" autoplay playsinline muted></video>
-            <canvas id="canvas"></canvas>
-        </div>
+    <div class="video-container">
+        <video id="video" autoplay playsinline muted></video>
+        <canvas id="canvas"></canvas>
     </div>
-    <div id="result">Cargando... ¡Prepárate para la magia! ✨</div>
 
-    <script>
-        const video = document.getElementById('video');
-        const canvas = document.getElementById('canvas');
-        const resultDiv = document.getElementById('result');
-        const ctx = canvas.getContext('2d');
+    <div class="ui-overlay-top">
+        <h1>CAMERANET AI <span class="badge">PRO</span></h1>
+    </div>
 
-        let model;
+    <div class="ui-overlay-bottom">
+        <div id="result" class="glass-panel">Cargando sistemas... 🛡️</div>
+    </div>
 
-        // Acceder a la cámara
-        navigator.mediaDevices.getUserMedia({ 
-            video: { 
-                facingMode: { ideal: "environment" },
-                width: { ideal: 640 },
-                height: { ideal: 480 }
-            } 
-        })
-        .then(stream => {
-            video.srcObject = stream;
-            video.onloadedmetadata = () => {
-                video.play();
-                setupCanvas();
-            };
-        })
-        .catch(error => {
-            console.error('Error al acceder a la cámara:', error);
-            resultDiv.innerText = '¡Ups! No puedo acceder a la cámara. 😞';
-        });
-
-        function setupCanvas() {
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-        }
-
-        // Cargar COCO-SSD
-        cocoSsd.load().then(loadedModel => {
-            model = loadedModel;
-            console.log('Modelo COCO-SSD cargado');
-            resultDiv.innerText = '¡Listo! Explorando el mundo contigo... 🚀';
-            detectFrame();
-        });
-
-        async function detectFrame() {
-            if (model && video.readyState === 4) {
-                const predictions = await model.detect(video);
-                drawPredictions(predictions);
-                
-                if (predictions.length > 0) {
-                    resultDiv.innerText = predictions
-                        .map(p => `${p.class}: ${(p.score * 100).toFixed(0)}%`)
-                        .join(' | ');
-                } else {
-                    resultDiv.innerText = 'Escaneando... 🔍';
-                }
-            }
-            requestAnimationFrame(detectFrame);
-        }
-
-        function drawPredictions(predictions) {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            predictions.forEach(prediction => {
-                const [x, y, width, height] = prediction.bbox;
-                
-                // Dibujar el rectángulo
-                ctx.strokeStyle = '#b3ff7d';
-                ctx.lineWidth = 4;
-                ctx.strokeRect(x, y, width, height);
-
-                // Dibujar el fondo del texto
-                ctx.fillStyle = '#b3ff7d';
-                const textWidth = ctx.measureText(prediction.class).width;
-                ctx.fillRect(x, y - 25, textWidth + 10, 25);
-
-                // Dibujar el texto
-                ctx.fillStyle = '#000000';
-                ctx.font = 'bold 16px Inter, sans-serif';
-                ctx.fillText(prediction.class, x + 5, y - 7);
-            });
-        }
-
-        window.addEventListener('resize', setupCanvas);
-    </script>
+    <script src="./script.js"></script>
 </body>
 </html>
 <!-- Fin del documento HTML -->
